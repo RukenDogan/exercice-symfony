@@ -19,15 +19,20 @@
                     <th>Nom</th>
                     <th>Prénom</th>
                     <th>Email</th>
+                    <th>Adresse</th>
+                    <th>Téléphone</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
                     <tr>
                         <td>{{ user.id }}</td>
-                        <td>{{ user.lastname }}</td>
-                        <td>{{ user.firstname }}</td>
+                        <td>{{ user.nom }}</td>
+                        <td>{{ user.prenom }}</td>
                         <td>{{ user.email }}</td>
+                        <td>{{ user.adresse }}</td>
+                        <td>{{ user.tel }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
