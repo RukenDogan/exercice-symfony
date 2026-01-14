@@ -7,7 +7,7 @@
 
     <h1 class="mb-4">Liste des utilisateurs</h1>
 
-    {% if users is empty %}
+    {% if usersWithAge is empty %}
         <div class="alert alert-info">
             Aucun utilisateur trouvé.
         </div>
@@ -22,11 +22,13 @@
                     <th>Adresse</th>
                     <th>Téléphone</th>
                     <th>Date de naissance</th>
+                    <th>Âge</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for item in usersWithAge %}
+                    {% set user = item.user %}
                     <tr>
                         <td>{{ user.id }}</td>
                         <td>{{ user.nom }}</td>
@@ -34,16 +36,19 @@
                         <td>{{ user.email }}</td>
                         <td>{{ user.adresse }}</td>
                         <td>{{ user.tel }}</td>
-                        <td>{{ user.birthDate|date('d-m-Y') }}</td>
+                        <td>{{ user.birthDate ? user.birthDate|date('d-m-Y') : '-' }}</td>
+                        <td>{{ item.age ?? '-' }}</td>
                         <td>
-                            <form method="post" action="{{ path('user_delete', {'id': user.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
+                            <form method="post"
+                                  action="{{ path('user_delete', {'id': user.id}) }}"
+                                  onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
                                 <button class="btn btn-danger btn-sm">Supprimer</button>
-                                <a href="{{ path('user_show', {'id': user.id}) }}" class="btn btn-primary btn-sm">Voir détails</a>
-
+                                <a href="{{ path('user_show', {'id': user.id}) }}" class="btn btn-primary btn-sm">
+                                    Voir détails
+                                </a>
                             </form>
                         </td>
-
                     </tr>
                 {% endfor %}
             </tbody>

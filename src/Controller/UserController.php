@@ -10,40 +10,63 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Possession;
+use App\Service\UserService;
+
 
 class UserController extends AbstractController
 {
-    #[Route('/users', name: 'user_list')]
-public function index(UserRepository $userRepository, EntityManagerInterface $entityManager): Response
-{
+#[Route('/users', name: 'user_list')]
+public function index(
+    UserRepository $userRepository,
+    EntityManagerInterface $entityManager,
+    UserService $userService
+): Response {
+    // Récupération de tous les utilisateurs
     $users = $userRepository->findAll();
 
-    if (empty($users)) {
-        $usersData = [
-            ['nom'=>'Snoop', 'prenom'=>'Dogg', 'email'=>'snoop.dogg@test.com', 'adresse'=>'12 rue de la gare', 'tel'=>'06 00 00 00 00'],
-            ['nom'=>'Sade', 'prenom'=>'Adu', 'email'=>'sade@test.com', 'adresse'=>'15 rue du jazz', 'tel'=>'06 11 22 33 44'],
-            ['nom'=>'Prince', 'prenom'=>'Rogers', 'email'=>'prince@test.com', 'adresse'=>'21 rue de la funk', 'tel'=>'06 55 66 77 88'],
-        ];
+    // Données par défaut
+    $usersData = [
+        'Snoop' => ['prenom'=>'Dogg', 'email'=>'snoop.dogg@test.com', 'adresse'=>'12 rue de la gare', 'tel'=>'06 00 00 00 00', 'birthDate'=>'1971-10-20'],
+        'Sade'  => ['prenom'=>'Adu',  'email'=>'sade@test.com',      'adresse'=>'15 rue du jazz',     'tel'=>'06 11 22 33 44', 'birthDate'=>'1959-01-16'],
+        'Prince'=> ['prenom'=>'Rogers','email'=>'prince@test.com',   'adresse'=>'21 rue de la funk',  'tel'=>'06 55 66 77 88', 'birthDate'=>'1958-06-07'],
+    ];
 
-        foreach ($usersData as $data) {
+    foreach ($usersData as $nom => $data) {
+        // Vérifie si l'utilisateur existe déjà
+        $user = $userRepository->findOneBy(['nom' => $nom]);
+        if (!$user) {
+            // Création si n'existe pas
             $user = new User();
-            $user->setNom($data['nom']);
+            $user->setNom($nom);
             $user->setPrenom($data['prenom']);
             $user->setEmail($data['email']);
             $user->setAdresse($data['adresse']);
             $user->setTel($data['tel']);
+            $user->setBirthDate(new \DateTime($data['birthDate']));
             $entityManager->persist($user);
+        } else {
+            // Si existe, on met à jour la date de naissance si elle est vide
+            if (!$user->getBirthDate()) {
+                $user->setBirthDate(new \DateTime($data['birthDate']));
+                $entityManager->persist($user);
+            }
         }
-
-        $entityManager->flush();
-
-        // Recharge les utilisateurs après insertion
-        $users = $userRepository->findAll();
     }
-    
+
+    $entityManager->flush();
+
+    // Recalcul de l'âge
+    $users = $userRepository->findAll();
+    $usersWithAge = [];
+    foreach ($users as $user) {
+        $usersWithAge[] = [
+            'user' => $user,
+            'age' => $userService->calculateAge($user),
+        ];
+    }
 
     return $this->render('user/index.html.twig', [
-        'users' => $users,
+        'usersWithAge' => $usersWithAge,
     ]);
 }
 
