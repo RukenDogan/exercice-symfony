@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de {{ user.nom }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Détails de {{ user.nom }} {{ user.prenom }}</h1>
+
+    <h3>Informations</h3>
+    <ul>
+        <li>Email : {{ user.email }}</li>
+        <li>Adresse : {{ user.adresse }}</li>
+        <li>Téléphone : {{ user.tel }}</li>
+    </ul>
+
+    <h3>Possessions</h3>
+    {% if possessions is empty %}
+        <div class="alert alert-info">Cet utilisateur n'a aucune possession.</div>
+    {% else %}
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom</th>
+                    <th>Valeur</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in possessions %}
+                    <tr>
+                        <td>{{ p.nom }}</td>
+                        <td>{{ p.valeur ?: '-' }}</td>
+                        <td>{{ p.type ?: '-' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

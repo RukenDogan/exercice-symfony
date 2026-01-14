@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Possession;
 
 class UserController extends AbstractController
 {
@@ -17,7 +18,6 @@ public function index(UserRepository $userRepository, EntityManagerInterface $en
 {
     $users = $userRepository->findAll();
 
-    // Si aucun utilisateur, on ajoute Snoop, Sade et Prince
     if (empty($users)) {
         $usersData = [
             ['nom'=>'Snoop', 'prenom'=>'Dogg', 'email'=>'snoop.dogg@test.com', 'adresse'=>'12 rue de la gare', 'tel'=>'06 00 00 00 00'],
@@ -58,5 +58,50 @@ public function delete(User $user, EntityManagerInterface $entityManager, Reques
 
     return $this->redirectToRoute('user_list');
 }
+
+
+#[Route('/users/{id}', name: 'user_show')]
+public function show(User $user): Response
+{
+    // On récupère les possessions grâce à la relation
+    $possessions = $user->getPossessions();
+
+    return $this->render('user/show.html.twig', [
+        'user' => $user,
+        'possessions' => $possessions,
+    ]);
+}
+
+#[Route('/users/add-possessions', name: 'add_sample_possessions')]
+public function addSamplePossessions(EntityManagerInterface $em, UserRepository $repo): Response
+{
+    $users = $repo->findAll();
+
+    foreach ($users as $user) {
+
+        $p1 = new Possession();
+        $p1->setNom('Guitare')
+            ->setValeur(1500)
+            ->setType('Instrument')
+            ->setDescription('Guitare électrique de collection')
+            ->setUser($user);
+
+        $p2 = new Possession();
+        $p2->setNom('Album Vinyl')
+            ->setValeur(80)
+            ->setType('Musique')
+            ->setDescription('Vinyle original pressage')
+            ->setUser($user);
+
+        $em->persist($p1);
+        $em->persist($p2);
+    }
+
+    $em->flush();
+
+    return $this->redirectToRoute('user_list');
+}
+
+
 
 }

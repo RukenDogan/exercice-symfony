@@ -4,6 +4,9 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Possession;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -99,5 +102,18 @@ class User
         $this->tel = $tel;
 
         return $this;
+    }
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Possession::class, cascade: ['persist', 'remove'])]
+    private Collection $possessions;
+
+    public function __construct()
+    {
+        $this->possessions = new ArrayCollection();
+    }
+
+    public function getPossessions(): Collection
+    {
+        return $this->possessions;
     }
 }

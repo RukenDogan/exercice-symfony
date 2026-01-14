@@ -16,11 +16,17 @@ class Possession
     #[ORM\Column(length: 40)]
     private ?string $nom = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'float', nullable: true, options: ['comment' => 'Prix de revente de l’objet'])]
     private ?float $valeur = null;
 
-    #[ORM\Column(length: 40)]
+    #[ORM\Column(type: 'string', length: 40, options: ['comment' => 'Type d’objet'])]
     private ?string $type = null;
+
+    // Relation ManyToOne avec User
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'possessions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
 
     public function getId(): ?int
     {
@@ -69,4 +75,31 @@ class Possession
 
         return $this;
     }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true, options: ['comment' => 'Description de l’objet'])]
+    private ?string $description = null;
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+        return $this;
+    }
+
 }
