@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Possession;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -31,6 +33,12 @@ class User
 
     #[ORM\Column(length: 40)]
     private ?string $tel = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Possession::class, cascade: ['persist', 'remove'])]
+    private Collection $possessions;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $birthDate = null;
 
     public function getId(): ?int
     {
@@ -104,9 +112,6 @@ class User
         return $this;
     }
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Possession::class, cascade: ['persist', 'remove'])]
-    private Collection $possessions;
-
     public function __construct()
     {
         $this->possessions = new ArrayCollection();
@@ -116,4 +121,16 @@ class User
     {
         return $this->possessions;
     }
+
+    public function getBirthDate(): ?\DateTimeInterface
+    {
+        return $this->birthDate;
+    }
+
+    public function setBirthDate(?\DateTimeInterface $birthDate): self
+    {
+        $this->birthDate = $birthDate;
+        return $this;
+    }
+
 }

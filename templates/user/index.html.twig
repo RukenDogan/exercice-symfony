@@ -21,6 +21,7 @@
                     <th>Email</th>
                     <th>Adresse</th>
                     <th>Téléphone</th>
+                    <th>Date de naissance</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -33,6 +34,7 @@
                         <td>{{ user.email }}</td>
                         <td>{{ user.adresse }}</td>
                         <td>{{ user.tel }}</td>
+                        <td>{{ user.birthDate|date('d-m-Y') }}</td>
                         <td>
                             <form method="post" action="{{ path('user_delete', {'id': user.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
