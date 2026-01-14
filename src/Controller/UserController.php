@@ -83,7 +83,7 @@ public function delete(User $user, EntityManagerInterface $entityManager, Reques
 }
 
 
-#[Route('/users/{id}', name: 'user_show')]
+#[Route('/users/{id<\d+>}', name: 'user_show')]
 public function show(User $user): Response
 {
     // On récupère les possessions grâce à la relation
@@ -125,6 +125,28 @@ public function addSamplePossessions(EntityManagerInterface $em, UserRepository 
     return $this->redirectToRoute('user_list');
 }
 
+#[Route('/users/new', name: 'user_new')]
+public function new(Request $request, EntityManagerInterface $em): Response
+{
+    $user = new User();
+
+    $form = $this->createForm(\App\Form\UserType::class, $user);
+
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->persist($user);
+        $em->flush();
+
+        $this->addFlash('success', 'Utilisateur ajouté avec succès !');
+
+        return $this->redirectToRoute('user_list');
+    }
+
+    return $this->render('user/new.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
 
 
 }
